@@ -1,4 +1,4 @@
-package com.epam.esm.web;
+package com.epam.esm.web.controllers;
 
 import com.epam.esm.web.exceptions.CertificateNotFoundException;
 import com.epam.esm.web.exceptions.ResponseException;
