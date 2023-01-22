@@ -1,11 +1,15 @@
 package com.epam.esm.web.entities;
 
 import java.time.ZonedDateTime;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Certificate {
     private int id, price, duration;
     private String name, description;
     private ZonedDateTime createDate, lastUpdateDate;
+
+    private List<Tag> tags = new LinkedList<>();
 
     public Certificate(){}
 
@@ -65,6 +69,18 @@ public class Certificate {
         this.lastUpdateDate = lastUpdateDate;
     }
 
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public void addTag(Tag tag){
+        tags.add(tag);
+    }
+
     @Override
     public String toString() {
         return "Certificate{" +
@@ -75,6 +91,7 @@ public class Certificate {
                 ", description='" + description + '\'' +
                 ", createDate=" + createDate +
                 ", lastUpdateDate=" + lastUpdateDate +
+                ", tags=" + tags +
                 '}';
     }
 }

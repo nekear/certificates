@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class CertificatesController {
 
@@ -16,6 +18,11 @@ public class CertificatesController {
     @Autowired
     public CertificatesController(CertificatesService certificatesService) {
         this.certificatesService = certificatesService;
+    }
+
+    @GetMapping("/")
+    public List<Certificate> getAllCertificates(){
+        return certificatesService.getAllCertificates();
     }
 
     @GetMapping("/{id}")
