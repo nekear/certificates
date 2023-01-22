@@ -5,6 +5,8 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 
 public class CertificateMapper implements RowMapper<Certificate> {
@@ -17,8 +19,8 @@ public class CertificateMapper implements RowMapper<Certificate> {
         certificate.setDescription(rs.getString("description"));
         certificate.setPrice(rs.getInt("price"));
         certificate.setDuration(rs.getInt("duration"));
-//        certificate.setCreateDate(rs.getDate("create_date").toInstant().atZone(ZoneId.systemDefault()));
-//        certificate.setLastUpdateDate(rs.getDate("last_update_date").toInstant().atZone(ZoneId.systemDefault()));
+        certificate.setCreateDate(rs.getTimestamp("create_date").toInstant().atZone(ZoneOffset.UTC));
+        certificate.setLastUpdateDate(rs.getTimestamp("last_update_date").toInstant().atZone(ZoneOffset.UTC));
 
         return certificate;
     }
