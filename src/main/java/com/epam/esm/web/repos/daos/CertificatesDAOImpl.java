@@ -3,14 +3,17 @@ package com.epam.esm.web.repos.daos;
 import com.epam.esm.web.entities.Certificate;
 import com.epam.esm.web.entities.Tag;
 import com.epam.esm.web.repos.daos.prototypes.CertificatesDAO;
+import com.epam.esm.web.repos.daos.prototypes.TagsDAO;
 import com.epam.esm.web.repos.mappers.CertificateMapper;
 import com.epam.esm.web.repos.mappers.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,11 +22,13 @@ import java.util.stream.Collectors;
 @Repository
 public class CertificatesDAOImpl implements CertificatesDAO {
 
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final TagsDAO tagsDAO;
 
     @Autowired
-    public CertificatesDAOImpl(JdbcTemplate jdbcTemplate) {
+    public CertificatesDAOImpl(JdbcTemplate jdbcTemplate, TagsDAO tagsDAO) {
         this.jdbcTemplate = jdbcTemplate;
+        this.tagsDAO = tagsDAO;
     }
 
     @Override
@@ -69,5 +74,36 @@ public class CertificatesDAOImpl implements CertificatesDAO {
         );
 
         return certificates.values().stream().toList();
+    }
+
+    @Override
+    @Transactional
+    public int createOne(Certificate certificate) {
+        // Creating new certificate
+        SimpleJdbcInsert certificateInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("gift_certificate").usingGeneratedKeyColumns("id", "create_date", "last_update_date");
+
+        HashMap<String, Object> certificateParams = new HashMap<>();
+        certificateParams.put("name", certificate.getName());
+        certificateParams.put("description", certificate.getDescription());
+        certificateParams.put("price", certificate.getPrice());
+        certificateParams.put("duration", certificate.getDuration());
+
+        int certificateId = certificateInsert.executeAndReturnKey(certificateParams).intValue();
+
+        List<Tag> tags = certificate.getTags();
+
+        // Creating new tags
+        tags.stream().filter(x -> x.getId() == null).forEach(tagsDAO::createOne);
+
+        // Connecting tags to the certificate
+        tags.forEach(x -> connectTag(certificateId, x.getId()));
+
+        return certificateId;
+    }
+
+    @Override
+    @Transactional
+    public void connectTag(int certificateId, int tagId) {
+        jdbcTemplate.update("INSERT INTO gc_tag (certificate_id, tag_id) VALUES (?, ?)", certificateId, tagId);
     }
 }
