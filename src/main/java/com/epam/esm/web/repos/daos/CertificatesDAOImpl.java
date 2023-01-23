@@ -2,21 +2,20 @@ package com.epam.esm.web.repos.daos;
 
 import com.epam.esm.web.entities.Certificate;
 import com.epam.esm.web.entities.Tag;
+import com.epam.esm.web.exceptions.DBException;
 import com.epam.esm.web.repos.daos.prototypes.CertificatesDAO;
 import com.epam.esm.web.repos.daos.prototypes.TagsDAO;
 import com.epam.esm.web.repos.mappers.CertificateMapper;
 import com.epam.esm.web.repos.mappers.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -105,5 +104,36 @@ public class CertificatesDAOImpl implements CertificatesDAO {
     @Transactional
     public void connectTag(int certificateId, int tagId) {
         jdbcTemplate.update("INSERT INTO gc_tag (certificate_id, tag_id) VALUES (?, ?)", certificateId, tagId);
+    }
+
+    @Override
+    @Transactional
+    public void updateOne(int id, Map<String, Object> fieldsToUpdate, List<Tag> currentTags) {
+        try{
+            // Updating certificate information (if any present)
+            if(!fieldsToUpdate.isEmpty()){
+                StringJoiner updateJoiner = new StringJoiner(", ");
+                fieldsToUpdate.forEach((x, y) -> updateJoiner.add(x + " = ?"));
+
+
+                fieldsToUpdate.put("id", id);
+
+                jdbcTemplate.update("UPDATE gift_certificate SET " + updateJoiner + " WHERE id = ?", fieldsToUpdate.values().toArray());
+            }
+
+            // Updating tags (if array is empty = remove all connected tags)
+            if(currentTags != null){
+                // Creating new tags
+                currentTags.stream().filter(x -> x.getId() == null).forEach(tagsDAO::createOne);
+
+                // Deleting connected tags
+                jdbcTemplate.update("DELETE FROM gc_tag WHERE certificate_id = ?", id);
+
+                // Inserting new connections
+                currentTags.forEach(x -> connectTag(id, x.getId()));
+            }
+        }catch (DataIntegrityViolationException e){
+            throw new DBException("Unable to execute certificate update. Maybe you specified the wrong certificate ID?", e);
+        }
     }
 }

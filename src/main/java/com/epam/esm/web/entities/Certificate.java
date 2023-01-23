@@ -5,35 +5,35 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Certificate {
-    private int id, price, duration;
+    private Integer id, price, duration;
     private String name, description;
     private ZonedDateTime createDate, lastUpdateDate;
 
-    private List<Tag> tags = new LinkedList<>();
+    private List<Tag> tags;
 
     public Certificate(){}
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
@@ -78,6 +78,9 @@ public class Certificate {
     }
 
     public void addTag(Tag tag){
+        if(tags == null)
+            tags = new LinkedList<>();
+
         tags.add(tag);
     }
 

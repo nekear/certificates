@@ -5,8 +5,8 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.LinkedList;
 
 
 public class CertificateMapper implements RowMapper<Certificate> {
@@ -21,6 +21,7 @@ public class CertificateMapper implements RowMapper<Certificate> {
         certificate.setDuration(rs.getInt("duration"));
         certificate.setCreateDate(rs.getTimestamp("create_date").toInstant().atZone(ZoneOffset.UTC));
         certificate.setLastUpdateDate(rs.getTimestamp("last_update_date").toInstant().atZone(ZoneOffset.UTC));
+        certificate.setTags(new LinkedList<>());
 
         return certificate;
     }

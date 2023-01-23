@@ -2,6 +2,7 @@ package com.epam.esm.web.controllers;
 
 import com.epam.esm.web.entities.Certificate;
 import com.epam.esm.web.exceptions.CertificateNotFoundException;
+import com.epam.esm.web.exceptions.DBException;
 import com.epam.esm.web.services.CertificatesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,16 @@ public class CertificatesController {
     public Certificate findCertificate(@PathVariable("id") int certificateId){
         return certificatesService
                 .findCertificate(certificateId)
+                .orElseThrow(() -> new CertificateNotFoundException(certificateId));
+    }
+
+    @PutMapping("/{id}")
+    public Certificate updateCertificate(
+            @PathVariable("id") int certificateId,
+            @RequestBody Certificate certificate
+    ){
+        return certificatesService
+                .updateCertificate(certificateId, certificate)
                 .orElseThrow(() -> new CertificateNotFoundException(certificateId));
     }
 

@@ -1,8 +1,10 @@
 package com.epam.esm.web.repos.daos.prototypes;
 
 import com.epam.esm.web.entities.Certificate;
+import com.epam.esm.web.entities.Tag;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface CertificatesDAO {
@@ -30,4 +32,13 @@ public interface CertificatesDAO {
      * Method for connecting tags to the specific certificate.
      */
     void connectTag(int certificateId, int tagId);
+
+    /**
+     * Method for updating specific certificate data.
+     * @param id certificate id
+     * @param fieldsToUpdate pairs of keys (column name) and values (new value)
+     * @param currentTags certificate tags, which were passed for update or null if no update needed
+     * @return true or false, depending on successfulness of operation.
+     */
+    void updateOne(int id, Map<String, Object> fieldsToUpdate, List<Tag> currentTags);
 }
