@@ -101,7 +101,6 @@ public class CertificatesDAOImpl implements CertificatesDAO {
     }
 
     @Override
-    @Transactional
     public void connectTag(int certificateId, int tagId) {
         jdbcTemplate.update("INSERT INTO gc_tag (certificate_id, tag_id) VALUES (?, ?)", certificateId, tagId);
     }
@@ -138,7 +137,6 @@ public class CertificatesDAOImpl implements CertificatesDAO {
     }
 
     @Override
-    @Transactional
     public boolean deleteOne(int id) {
         return jdbcTemplate.update("DELETE FROM gift_certificate WHERE id = ?", id) > 0;
     }

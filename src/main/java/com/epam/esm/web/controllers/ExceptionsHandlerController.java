@@ -1,9 +1,6 @@
 package com.epam.esm.web.controllers;
 
-import com.epam.esm.web.exceptions.CertificateNotFoundException;
-import com.epam.esm.web.exceptions.DBException;
-import com.epam.esm.web.exceptions.OperationException;
-import com.epam.esm.web.exceptions.ResponseException;
+import com.epam.esm.web.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,9 +9,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class ExceptionsHandlerController {
-    @ExceptionHandler(CertificateNotFoundException.class)
+    @ExceptionHandler({CertificateNotFoundException.class, TagNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ResponseException certificateNFE(CertificateNotFoundException e){
+    public @ResponseBody ResponseException notFoundExceptions(RuntimeException e){
         return new ResponseException(e.getMessage(), 404);
     }
 

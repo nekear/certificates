@@ -1,14 +1,14 @@
 package com.epam.esm.web.exceptions;
 
 public class OperationException extends RuntimeException{
-    private long certificateId;
+    private long unitId;
 
-    public OperationException(long certificateId) {
-        super(String.format("Failed executing operation on #%d", certificateId));
-        this.certificateId = certificateId;
+    public OperationException(long id) {
+        super(String.format("Failed executing operation on #%d", id));
+        this.unitId = id;
     }
 
-    public long getCertificateId() {
-        return certificateId;
+    public long getUnitId() {
+        return unitId;
     }
 }
