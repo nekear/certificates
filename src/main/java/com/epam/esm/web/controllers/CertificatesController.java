@@ -1,14 +1,16 @@
 package com.epam.esm.web.controllers;
 
 import com.epam.esm.web.entities.Certificate;
+import com.epam.esm.web.entities.enums.SortCategories;
+import com.epam.esm.web.entities.enums.SortTypes;
 import com.epam.esm.web.exceptions.CertificateNotFoundException;
-import com.epam.esm.web.exceptions.DBException;
 import com.epam.esm.web.exceptions.OperationException;
 import com.epam.esm.web.services.CertificatesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/certificates")
@@ -22,8 +24,13 @@ public class CertificatesController {
     }
 
     @GetMapping
-    public List<Certificate> getAllCertificates(){
-        return certificatesService.getAllCertificates();
+    public List<Certificate> getAllCertificates(
+            @RequestParam(value = "tag") Optional<String> tagSearch,
+            @RequestParam(value = "gc") Optional<String> certificateSearch,
+            @RequestParam(value = "orderBy", required = false) List<SortCategories> orderBy,
+            @RequestParam(value = "orderTypes", required = false) List<SortTypes> orderTypes
+    ){
+        return certificatesService.getAllCertificates(tagSearch, certificateSearch, orderBy, orderTypes);
     }
 
     @PostMapping

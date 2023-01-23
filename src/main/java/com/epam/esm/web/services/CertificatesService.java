@@ -3,14 +3,13 @@ package com.epam.esm.web.services;
 import com.epam.esm.utils.Utils;
 import com.epam.esm.web.entities.Certificate;
 import com.epam.esm.web.entities.Tag;
+import com.epam.esm.web.entities.enums.SortCategories;
+import com.epam.esm.web.entities.enums.SortTypes;
 import com.epam.esm.web.repos.daos.prototypes.CertificatesDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CertificatesService {
@@ -31,8 +30,18 @@ public class CertificatesService {
     /**
      * Method for acquiring all available certificates.
      */
-    public List<Certificate> getAllCertificates() {
-        return certificatesDAO.getAll();
+    public List<Certificate> getAllCertificates(Optional<String> tag, Optional<String> gc, List<SortCategories> orderBy, List<SortTypes> orderTypes) {
+        Map<String, String> searching = new HashMap<>();
+        tag.ifPresent(x -> searching.put("tag", x));
+        gc.ifPresent(x -> searching.put("gc", x));
+
+        LinkedHashMap<SortCategories, SortTypes> ordering = new LinkedHashMap<>();
+        for(int i = 0; i < orderBy.size(); i++){
+            if(orderTypes.get(i) != null)
+                ordering.put(orderBy.get(i), orderTypes.get(i));
+        }
+
+        return certificatesDAO.getAll(searching, ordering);
     }
 
     /**

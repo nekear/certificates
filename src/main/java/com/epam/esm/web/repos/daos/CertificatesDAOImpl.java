@@ -2,6 +2,8 @@ package com.epam.esm.web.repos.daos;
 
 import com.epam.esm.web.entities.Certificate;
 import com.epam.esm.web.entities.Tag;
+import com.epam.esm.web.entities.enums.SortCategories;
+import com.epam.esm.web.entities.enums.SortTypes;
 import com.epam.esm.web.exceptions.DBException;
 import com.epam.esm.web.repos.daos.prototypes.CertificatesDAO;
 import com.epam.esm.web.repos.daos.prototypes.TagsDAO;
@@ -54,10 +56,31 @@ public class CertificatesDAOImpl implements CertificatesDAO {
     }
 
     @Override
-    public List<Certificate> getAll() {
+    public List<Certificate> getAll(Map<String, String> searching, LinkedHashMap<SortCategories, SortTypes> ordering) {
+        String sqlQuery = "SELECT *, glueTags(gift_certificate.id) AS tags FROM gift_certificate ";
+
+        if(!searching.isEmpty()){
+            sqlQuery += "WHERE ";
+
+            StringJoiner joiner = new StringJoiner(" AND ");
+            if(searching.containsKey("gc"))
+                joiner.add("gift_certificate.name LIKE ?");
+
+            if(searching.containsKey("tag"))
+                joiner.add("countConnectedTagsWithName(gift_certificate.id, ?) > 0");
+
+            sqlQuery += joiner.toString() + " ";
+        }
+
+        if(!ordering.isEmpty()){
+            StringJoiner orderingJoiner = new StringJoiner(",", "ORDER BY ", "");
+            ordering.forEach(orderingJoiner.add(String.format("%s %s", )));
+            query += orderingJoiner.toString();
+        }
+
         Map<Integer, Certificate> certificates =
                 jdbcTemplate
-                        .query("SELECT * FROM gift_certificate", new CertificateMapper())
+                        .query(, new CertificateMapper())
                         .stream()
                         .collect(Collectors.toMap(Certificate::getId, x -> x));
 

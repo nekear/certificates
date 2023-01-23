@@ -2,7 +2,10 @@ package com.epam.esm.web.repos.daos.prototypes;
 
 import com.epam.esm.web.entities.Certificate;
 import com.epam.esm.web.entities.Tag;
+import com.epam.esm.web.entities.enums.SortCategories;
+import com.epam.esm.web.entities.enums.SortTypes;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +22,7 @@ public interface CertificatesDAO {
      * Method for getting all available certificates.
      * @return list of available certificates.
      */
-    List<Certificate> getAll();
+    List<Certificate> getAll(Map<String, String> searching, LinkedHashMap<SortCategories, SortTypes> ordering);
 
     /**
      * Method for creating new certificates.
