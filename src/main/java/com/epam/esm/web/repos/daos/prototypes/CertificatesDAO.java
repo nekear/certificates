@@ -41,4 +41,9 @@ public interface CertificatesDAO {
      * @return true or false, depending on successfulness of operation.
      */
     void updateOne(int id, Map<String, Object> fieldsToUpdate, List<Tag> currentTags);
+
+    /**
+     * Method for deleting certificates by their id.
+     */
+    boolean deleteOne(int id);
 }

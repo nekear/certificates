@@ -64,4 +64,11 @@ public class CertificatesService {
 
         return this.findCertificate(id);
     }
+
+    /**
+     * Method for deleting certificates.
+     */
+    public boolean deleteCertificate(int id){
+        return certificatesDAO.deleteOne(id);
+    }
 }

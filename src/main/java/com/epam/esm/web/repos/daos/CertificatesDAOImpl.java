@@ -136,4 +136,10 @@ public class CertificatesDAOImpl implements CertificatesDAO {
             throw new DBException("Unable to execute certificate update. Maybe you specified the wrong certificate ID?", e);
         }
     }
+
+    @Override
+    @Transactional
+    public boolean deleteOne(int id) {
+        return jdbcTemplate.update("DELETE FROM gift_certificate WHERE id = ?", id) > 0;
+    }
 }
