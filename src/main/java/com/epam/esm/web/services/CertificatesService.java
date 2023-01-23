@@ -32,13 +32,16 @@ public class CertificatesService {
      */
     public List<Certificate> getAllCertificates(Optional<String> tag, Optional<String> gc, List<SortCategories> orderBy, List<SortTypes> orderTypes) {
         Map<String, String> searching = new HashMap<>();
-        tag.ifPresent(x -> searching.put("tag", x));
-        gc.ifPresent(x -> searching.put("gc", x));
+        tag.ifPresent(x -> searching.put("tag", "%"+Utils.clean(x)+"%"));
+        gc.ifPresent(x -> searching.put("gc", "%"+Utils.clean(x)+"%"));
 
         LinkedHashMap<SortCategories, SortTypes> ordering = new LinkedHashMap<>();
-        for(int i = 0; i < orderBy.size(); i++){
-            if(orderTypes.get(i) != null)
-                ordering.put(orderBy.get(i), orderTypes.get(i));
+
+        if(orderBy != null && orderTypes != null){
+            for(int i = 0; i < orderBy.size(); i++){
+                if(orderTypes.get(i) != null)
+                    ordering.put(orderBy.get(i), orderTypes.get(i));
+            }
         }
 
         return certificatesDAO.getAll(searching, ordering);

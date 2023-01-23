@@ -8,6 +8,7 @@ import com.epam.esm.web.exceptions.DBException;
 import com.epam.esm.web.repos.daos.prototypes.CertificatesDAO;
 import com.epam.esm.web.repos.daos.prototypes.TagsDAO;
 import com.epam.esm.web.repos.mappers.CertificateMapper;
+import com.epam.esm.web.repos.mappers.ExtendedCertificateMapper;
 import com.epam.esm.web.repos.mappers.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -59,43 +60,38 @@ public class CertificatesDAOImpl implements CertificatesDAO {
     public List<Certificate> getAll(Map<String, String> searching, LinkedHashMap<SortCategories, SortTypes> ordering) {
         String sqlQuery = "SELECT *, glueTags(gift_certificate.id) AS tags FROM gift_certificate ";
 
+        List<Object> queryParams = new LinkedList<>();
+
         if(!searching.isEmpty()){
             sqlQuery += "WHERE ";
 
             StringJoiner joiner = new StringJoiner(" AND ");
-            if(searching.containsKey("gc"))
+            if(searching.containsKey("gc")) {
                 joiner.add("gift_certificate.name LIKE ?");
+                queryParams.add(searching.get("gc"));
+            }
 
-            if(searching.containsKey("tag"))
+            if(searching.containsKey("tag")){
                 joiner.add("countConnectedTagsWithName(gift_certificate.id, ?) > 0");
+                queryParams.add(searching.get("tag"));
+            }
 
-            sqlQuery += joiner.toString() + " ";
+            sqlQuery += joiner + " ";
         }
 
         if(!ordering.isEmpty()){
             StringJoiner orderingJoiner = new StringJoiner(",", "ORDER BY ", "");
-            ordering.forEach(orderingJoiner.add(String.format("%s %s", )));
-            query += orderingJoiner.toString();
+
+            if(ordering.containsKey(SortCategories.name))
+                orderingJoiner.add("gift_certificate.name " + ordering.get(SortCategories.name));
+
+            if(ordering.containsKey(SortCategories.date))
+                orderingJoiner.add("gift_certificate.create_date " + ordering.get(SortCategories.date));
+
+            sqlQuery += orderingJoiner.toString();
         }
 
-        Map<Integer, Certificate> certificates =
-                jdbcTemplate
-                        .query(, new CertificateMapper())
-                        .stream()
-                        .collect(Collectors.toMap(Certificate::getId, x -> x));
-
-        jdbcTemplate.query(
-                "SELECT gc_tag.certificate_id, id, name FROM tag\n" +
-                "JOIN gc_tag ON gc_tag.tag_id = tag.id",
-                (rs, i) -> {
-                    Tag tag = new TagMapper().mapRow(rs, i);
-                    certificates.get(rs.getInt("certificate_id")).addTag(tag);
-
-                    return tag;
-                }
-        );
-
-        return certificates.values().stream().toList();
+        return jdbcTemplate.query(sqlQuery, queryParams.toArray(), new ExtendedCertificateMapper());
     }
 
     @Override

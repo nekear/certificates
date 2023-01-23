@@ -13,4 +13,11 @@ public class Utils {
                 .filter(x -> x.getValue().apply(obj) != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().apply(obj)));
     }
+
+    public static String clean(String str){
+        return str.trim().replace("!", "!!")
+                .replace("%", "!%")
+                .replace("_", "!_")
+                .replace("[", "![");
+    }
 }
