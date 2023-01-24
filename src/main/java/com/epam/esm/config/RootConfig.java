@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -21,7 +22,7 @@ import javax.sql.DataSource;
 @PropertySource("classpath:app.properties")
 public class RootConfig {
     @Autowired
-    Environment env;
+    ConfigurableEnvironment env;
 
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource ds){

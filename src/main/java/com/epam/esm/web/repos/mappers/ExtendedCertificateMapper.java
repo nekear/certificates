@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-
 public class ExtendedCertificateMapper extends CertificateMapper {
     @Override
     public Certificate mapRow(ResultSet rs, int rowNum) throws SQLException {

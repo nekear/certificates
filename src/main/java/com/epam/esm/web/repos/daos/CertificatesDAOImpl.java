@@ -70,7 +70,8 @@ public class CertificatesDAOImpl implements CertificatesDAO {
 
             StringJoiner joiner = new StringJoiner(" AND ");
             if(searching.containsKey("gc")) {
-                joiner.add("gift_certificate.name LIKE ?");
+                joiner.add("gift_certificate.name LIKE ? OR gift_certificate.description LIKE ?");
+                queryParams.add(searching.get("gc"));
                 queryParams.add(searching.get("gc"));
             }
 
