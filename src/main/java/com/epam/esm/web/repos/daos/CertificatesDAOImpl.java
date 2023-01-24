@@ -15,9 +15,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,7 +65,7 @@ public class CertificatesDAOImpl implements CertificatesDAO {
 
         List<Object> queryParams = new LinkedList<>();
 
-        if(!searching.isEmpty()){
+        if(searching != null && !searching.isEmpty()){
             sqlQuery += "WHERE ";
 
             StringJoiner joiner = new StringJoiner(" AND ");
@@ -79,7 +82,7 @@ public class CertificatesDAOImpl implements CertificatesDAO {
             sqlQuery += joiner + " ";
         }
 
-        if(!ordering.isEmpty()){
+        if(ordering != null && !ordering.isEmpty()){
             StringJoiner orderingJoiner = new StringJoiner(",", "ORDER BY ", "");
 
             if(ordering.containsKey(SortCategories.name))
@@ -98,23 +101,30 @@ public class CertificatesDAOImpl implements CertificatesDAO {
     @Transactional
     public int createOne(Certificate certificate) {
         // Creating new certificate
-        SimpleJdbcInsert certificateInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("gift_certificate").usingGeneratedKeyColumns("id", "create_date", "last_update_date");
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement stmt = con.prepareStatement("INSERT INTO gift_certificate (name, description, price, duration) VALUES (?, ?, ?, ?)", new String[] {"id"});
 
-        HashMap<String, Object> certificateParams = new HashMap<>();
-        certificateParams.put("name", certificate.getName());
-        certificateParams.put("description", certificate.getDescription());
-        certificateParams.put("price", certificate.getPrice());
-        certificateParams.put("duration", certificate.getDuration());
+            int index = 1;
+            stmt.setString(index++, certificate.getName());
+            stmt.setString(index++, certificate.getDescription());
+            stmt.setInt(index++, certificate.getPrice());
+            stmt.setInt(index++, certificate.getDuration());
 
-        int certificateId = certificateInsert.executeAndReturnKey(certificateParams).intValue();
+            return stmt;
+        }, keyHolder);
+
+        int certificateId = keyHolder.getKey().intValue();
 
         List<Tag> tags = certificate.getTags();
 
-        // Creating new tags
-        tags.stream().filter(x -> x.getId() == null).forEach(tagsDAO::createOne);
+        if(tags != null){
+            // Creating new tags
+            tags.stream().filter(x -> x.getId() == null).forEach(tagsDAO::createOne);
 
-        // Connecting tags to the certificate
-        tags.forEach(x -> connectTag(certificateId, x.getId()));
+            // Connecting tags to the certificate
+            tags.forEach(x -> connectTag(certificateId, x.getId()));
+        }
 
         return certificateId;
     }

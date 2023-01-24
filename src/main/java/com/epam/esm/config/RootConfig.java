@@ -2,6 +2,7 @@ package com.epam.esm.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
@@ -33,6 +34,7 @@ public class RootConfig {
     }
 
     @Bean
+    @Profile("dev")
     public DataSource devDS(){
         HikariConfig hc = new HikariConfig();
         hc.setDriverClassName(env.getProperty("db.driver"));
@@ -50,6 +52,17 @@ public class RootConfig {
         hc.addDataSourceProperty("dataSource.useServerPrepStmts", "true");
 
         return new HikariDataSource(hc);
+    }
+
+    @Bean
+    @Profile("qa")
+    public DataSource qaDS(){
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setUrl(env.getProperty("test.db.h2.url"));
+        dataSource.setUser(env.getProperty("test.db.h2.username"));
+        dataSource.setPassword(env.getProperty("test.db.h2.password"));
+
+        return dataSource;
     }
 
 }
